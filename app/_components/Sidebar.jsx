@@ -14,6 +14,9 @@ import {
   ChevronDownCircle,
   Coins,
   Presentation,
+  MapPinHouse,
+  NotepadText,
+  BaggageClaim,
 } from "lucide-react"; // Import icons from lucide-react
 import { PaperClipIcon, UserGroupIcon } from "@heroicons/react/outline";
 
@@ -21,12 +24,26 @@ const Sidebar = () => {
   return (
     <div className="flex h-screen flex-col justify-between border-b bg-myBgDark-lifgtDark">
       <div className="px-4 py-6">
-        <Link href={"/"}>
-          <h1 className="text-2xl font-bold px-4 text-white">
-            <HardHat className="inline-block w-9 h-9 mr-2 text-white" />
-            Henry's <span className="text-indigo-600"> Hardware</span>
-          </h1>
-        </Link>
+        <div className="sticky inset-x-0  bg-myBgDark-lifgtDark">
+          <a
+            href="#"
+            className="flex items-center gap-2 bg-myBgDark-lifgtDark p-4 hover:bg-myBgDark-darkBg"
+          >
+            <img
+              alt=""
+              src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+              className="size-10 rounded-full object-cover"
+            />
+
+            <div>
+              <p className="text-xs text-white">
+                <strong className="block font-medium">Eric Frusciante</strong>
+
+                <span> eric@frusciante.com </span>
+              </p>
+            </div>
+          </a>
+        </div>
 
         <ul className="mt-6 space-y-1">
           <li>
@@ -34,7 +51,7 @@ const Sidebar = () => {
               href={"/"}
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <LayoutDashboard className="inline-block w-4 h-4 mr-2" />
+              <LayoutDashboard className="inline-block w-5 h-5 mr-2" />
               Dashboard
             </Link>
           </li>
@@ -44,7 +61,7 @@ const Sidebar = () => {
               href={"/inventoryItem"}
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <Box className="inline-block w-4 h-4 mr-2" />
+              <Box className="inline-block w-5 h-5 mr-2" />
               Inventory
             </Link>
           </li>
@@ -54,8 +71,18 @@ const Sidebar = () => {
               href={"/sales"}
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <Coins className="inline-block w-4 h-4 mr-2" />
+              <Coins className="inline-block w-5 h-5 mr-2" />
               Sales
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href={"/reorder"}
+              className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
+            >
+              <BaggageClaim className="inline-block w-5 h-5 mr-2" />
+              Reorder stock
             </Link>
           </li>
 
@@ -64,7 +91,7 @@ const Sidebar = () => {
               href={"/reportSales"}
               className="block rounded-lg px-4 py-2 text-sm font-mediumtext-white text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <PaperClipIcon className="inline-block w-4 h-4 mr-2" />
+              <NotepadText className="inline-block w-5 h-5 mr-2" />
               Report
             </Link>
           </li>
@@ -74,7 +101,7 @@ const Sidebar = () => {
               href={"/customer"}
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <UserGroupIcon className="inline-block w-4 h-4 mr-2" />
+              <UserGroupIcon className="inline-block w-5 h-5 mr-2" />
               Customers
             </Link>
           </li>
@@ -84,7 +111,7 @@ const Sidebar = () => {
               href={"/suplier"}
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <Presentation className="inline-block w-4 h-4 mr-2" />
+              <MapPinHouse className="inline-block w-5 h-5 mr-2" />
               Supliers
             </Link>
           </li>
@@ -113,7 +140,7 @@ const Sidebar = () => {
                     href="#"
                     className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
                   >
-                    <Calendar className="inline-block w-4 h-4 mr-2" />
+                    <Calendar className="inline-block w-5 h-5 mr-2" />
                     Calendar
                   </a>
                 </li>
@@ -126,7 +153,7 @@ const Sidebar = () => {
               href="#"
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <CreditCard className="inline-block w-4 h-4 mr-2" />
+              <CreditCard className="inline-block w-5 h-5 mr-2" />
               Billing
             </a>
           </li>
@@ -136,7 +163,7 @@ const Sidebar = () => {
               href={"/invoise"}
               className="block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100"
             >
-              <FileText className="inline-block w-4 h-4 mr-2" />
+              <FileText className="inline-block w-5 h-5 mr-2" />
               Invoices
             </Link>
           </li>
@@ -175,7 +202,7 @@ const Sidebar = () => {
                       type="submit"
                       className="w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-500 [text-align:_inherit] hover:bg-gray-100 hover:text-slate-100"
                     >
-                      <LogOut className="inline-block w-4 h-4 mr-2" />
+                      <LogOut className="inline-block w-5 h-5 mr-2" />
                       Logout
                     </button>
                   </form>
@@ -184,27 +211,6 @@ const Sidebar = () => {
             </details>
           </li>
         </ul>
-      </div>
-
-      <div className="sticky inset-x-0  bg-myBgDark-lifgtDark">
-        <a
-          href="#"
-          className="flex items-center gap-2 bg-myBgDark-lifgtDark p-4 hover:bg-myBgDark-darkBg"
-        >
-          <img
-            alt=""
-            src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
-            className="size-10 rounded-full object-cover"
-          />
-
-          <div>
-            <p className="text-xs text-white">
-              <strong className="block font-medium">Eric Frusciante</strong>
-
-              <span> eric@frusciante.com </span>
-            </p>
-          </div>
-        </a>
       </div>
     </div>
   );

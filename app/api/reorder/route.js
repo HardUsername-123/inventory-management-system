@@ -1,5 +1,5 @@
 import connectMongoDB from "@/lib/mongodb";
-import Product from "@/models/products";
+import Reorder from "@/models/reorder";
 import { NextResponse } from "next/server";
 
 //create
@@ -10,7 +10,7 @@ export async function POST(req) {
 
     await connectMongoDB();
 
-    const newProduct = await Product.create({
+    const newProduct = await Reorder.create({
       productId,
       productName,
       category,
@@ -49,7 +49,7 @@ export async function POST(req) {
 export async function GET() {
   try {
     await connectMongoDB();
-    const getProduct = await Product.find();
+    const getProduct = await Reorder.find();
 
     // Convert timestamps to Philippine time for each product
     const productsPHT = getProduct.map((product) => ({
@@ -80,7 +80,7 @@ export async function DELETE(request) {
   try {
     await connectMongoDB();
 
-    const deletedProduct = await Product.findByIdAndDelete(id);
+    const deletedProduct = await Reorder.findByIdAndDelete(id);
 
     if (!deletedProduct) {
       return NextResponse.json(

@@ -12,18 +12,22 @@ export async function PUT(request, { params }) {
       newCategory: category,
       newStockLevel: stockLevel,
       newPrice: price,
-      newLocation: location,
+      newSupplier: supplier,
     } = await request.json();
     await connectMongoDB();
-    await Product.findByIdAndUpdate(id, {
+    const updateProduct = await Product.findByIdAndUpdate(id, {
       productId,
       productName,
       category,
       stockLevel,
       price,
-      location,
+      supplier,
     });
-    return NextResponse.json({ message: "Product updated" }, { status: 201 });
+    console.log(updateProduct);
+    return NextResponse.json(
+      { updateProduct, message: "Product updated" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

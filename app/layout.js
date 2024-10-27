@@ -35,13 +35,13 @@ export default function RootLayout({ children }) {
             <Sidebar />
           </aside>
 
-          <main className="col-span-9 md:col-span-9 bg-myBgDark-darkBg max-h-screen overflow-scroll">
+          <main className="col-span-9 md:col-span-9 bg-myBgDark-darkBg max-h-screen overflow-scroll no-scrollbar">
             <Header />
             {children}
+            <Footer />
           </main>
           <Toaster />
         </div>
-        {/* <Footer /> */}
       </body>
     </html>
   );

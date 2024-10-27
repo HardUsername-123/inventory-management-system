@@ -15,57 +15,86 @@ import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { PencilIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { toast } from "sonner"; // Ensure you're using this toast
 
-export function EditModal({
-  id,
-  productName,
-  category,
-  quantity,
-  price,
-  location,
-}) {
-  console.log(id);
-  console.log(productName);
-  console.log(category);
-  console.log(quantity);
-  console.log(price);
-  console.log(location);
-
-  const [newProductName, setNewProductName] = useState(productName);
-  const [newCategory, setNewCategory] = useState(category);
-  const [newQuantity, setNewQuantity] = useState(quantity);
-  const [newPrice, setNewPrice] = useState(price);
-  const [newLocation, setNewLocation] = useState(location);
+export function EditModal({ id, onUpdate }) {
+  const [newProductId, setNewProductId] = useState("");
+  const [newProductName, setNewProductName] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newStockLevel, setNewStockLevel] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newLocation, setNewLocation] = useState("");
+  const [open, setOpen] = useState(false);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const getProductById = async (id) => {
+      try {
+        const res = await axios.get(`/api/products/${id}`);
+        if (res.status === 200) {
+          const product = res.data.getItem;
+          setNewProductId(product.productId);
+          setNewProductName(product.productName);
+          setNewCategory(product.category);
+          setNewStockLevel(product.stockLevel);
+          setNewPrice(product.price);
+          setNewLocation(product.location);
+        } else {
+          throw new Error("Failed to fetch product data");
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+
+    if (id) {
+      getProductById(id);
+    }
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (
+      !newStockLevel ||
+      !newProductId ||
+      !newProductName ||
+      !newCategory ||
+      !newPrice ||
+      !newLocation
+    ) {
+      toast.error("All fields are required.");
+      return;
+    }
+
     try {
       const res = await axios.put(`/api/products/${id}`, {
+        newProductId,
         newProductName,
         newCategory,
-        newQuantity,
+        newStockLevel,
         newPrice,
         newLocation,
       });
 
       if (res.status !== 201) {
-        throw new Error("Failed to update a topic");
+        throw new Error("Failed to update product");
       }
 
-      toast("Update product Successful.");
-
-      router.refresh();
+      setOpen(false);
+      onUpdate(res.data.updateProduct); // Call the onUpdate to refresh data
+      toast.success("Product updated successfully.");
+      router.refresh(); // Refresh page
     } catch (error) {
-      comsole.log(error);
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product.");
     }
   };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           aria-label="Edit"
@@ -79,71 +108,83 @@ export function EditModal({
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
-            Make changes your Product here. Click save when you're done.
+            Make changes to your product here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Product name
-            </Label>
-            <Input
-              id="name"
-              onChange={(e) => setNewProductName(e.target.value)}
-              value={newProductName}
-              className="col-span-3"
-            />
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Product name
+              </Label>
+              <Input
+                id="name"
+                onChange={(e) => setNewProductId(e.target.value)}
+                value={newProductId}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Product name
+              </Label>
+              <Input
+                id="name"
+                onChange={(e) => setNewProductName(e.target.value)}
+                value={newProductName}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="category" className="text-right">
+                Category
+              </Label>
+              <Input
+                id="category"
+                onChange={(e) => setNewCategory(e.target.value)}
+                value={newCategory}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="quantity" className="text-right">
+                Stock Level
+              </Label>
+              <Input
+                id="quantity"
+                onChange={(e) => setNewStockLevel(e.target.value)}
+                value={newStockLevel}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="price" className="text-right">
+                Price
+              </Label>
+              <Input
+                id="price"
+                onChange={(e) => setNewPrice(e.target.value)}
+                value={newPrice}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="location" className="text-right">
+                Location
+              </Label>
+              <Input
+                id="location"
+                onChange={(e) => setNewLocation(e.target.value)}
+                value={newLocation}
+                className="col-span-3"
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="category" className="text-right">
-              Category
-            </Label>
-            <Input
-              id="category"
-              onChange={(e) => setNewCategory(e.target.value)}
-              value={newCategory}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="quantity" className="text-right">
-              Quantity
-            </Label>
-            <Input
-              id="quantity"
-              onChange={(e) => setNewQuantity(e.target.value)}
-              value={newQuantity}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="price" className="text-right">
-              Price
-            </Label>
-            <Input
-              id="price"
-              onChange={(e) => setNewPrice(e.target.value)}
-              value={newPrice}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="location" className="text-right">
-              Location
-            </Label>
-            <Input
-              id="location"
-              onChange={(e) => setNewLocation(e.target.value)}
-              value={newLocation}
-              className="col-span-3"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleSubmit} type="submit">
-            Save changes
-          </Button>
-        </DialogFooter>
+
+          <DialogFooter>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

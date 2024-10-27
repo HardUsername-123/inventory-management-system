@@ -1,28 +1,32 @@
 import React from "react";
 import { Triangle } from "react-loader-spinner";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog"; // Make sure to import from the correct path
+import { ScaleLoader } from "react-spinners";
 
 const Loading = ({ isOpen, onClose }) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[300px] h-[300px] flex justify-center items-center">
+    <AlertDialog
+      open={isOpen}
+      onOpenChange={onClose}
+      className="bg-transparent border-none"
+    >
+      <AlertDialogContent className="sm:max-w-[300px] h-[300px] flex justify-center items-center bg-transparent shadow-none border-none">
         <div className="flex justify-center items-center py-4">
-          <Triangle
-            visible={true}
-            height="90"
-            width="90"
-            color="#000000"
-            ariaLabel="triangle-loading"
-          />
+          <ScaleLoader color="#ffffff" size={50} />
         </div>
-      </DialogContent>
-    </Dialog>
+        <AlertDialogTitle className="hidden">Loading</AlertDialogTitle>
+        {/* Optionally add a title */}
+        <AlertDialogDescription className="hidden">
+          Please wait...
+        </AlertDialogDescription>
+        {/* Optionally add a description */}
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

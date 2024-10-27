@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "./Alert";
 import { useToast } from "@/hooks/use-toast";
 
-export default function RemoveBtn({ id }) {
+export default function RemoveBtn({ id, onDelete }) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -19,6 +19,7 @@ export default function RemoveBtn({ id }) {
 
       if (res.status === 200) {
         console.log("Successfully Delete");
+        onDelete(id);
         toast({
           title: "Success",
           description: "Product successfully delete.",

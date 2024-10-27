@@ -17,8 +17,9 @@ import { PencilIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import swal from "sweetalert";
 
-export function AddModal() {
+export function AddModal({ onAdd }) {
   // State to hold product details
   const [open, setOpen] = useState(false);
   const [productId, setProductId] = useState("");
@@ -26,7 +27,7 @@ export function AddModal() {
   const [category, setCategory] = useState("");
   const [stockLevel, setStockLevel] = useState("");
   const [price, setPrice] = useState("");
-  const [location, setLocation] = useState("");
+  const [supplier, setSupplier] = useState("");
 
   const router = useRouter();
   const { toast } = useToast(); // Correct destructure
@@ -42,17 +43,27 @@ export function AddModal() {
         category,
         stockLevel,
         price,
-        location,
+        supplier,
       });
 
       if (res.status === 201) {
         // Display success toast
         setOpen(false);
-        toast({
-          title: "Success",
-          description: "Product created successfully.",
-          className: "bg-green-500 text-white", // Apply custom classes for green background and white text
+        // toast({
+        //   title: "Success",
+        //   description: "Product created successfully.",
+        //   className: "bg-green-500 text-white", // Apply custom classes for green background and white text
+        // });
+
+        swal({
+          position: "top-end",
+          icon: "success",
+          title: "Product created successfully.",
+          showConfirmButton: false,
         });
+
+        console.log("Mao ni", res.data.product);
+        onAdd(res.data.product);
 
         // Refresh the page and reset form fields
         router.refresh();
@@ -61,7 +72,7 @@ export function AddModal() {
         setCategory("");
         setStockLevel("");
         setPrice("");
-        setLocation("");
+        setSupplier("");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -102,7 +113,7 @@ export function AddModal() {
                 ID
               </label>
               <input
-                type="number"
+                type="text"
                 id="productId"
                 value={productId}
                 onChange={(e) => setProductId(e.target.value)}
@@ -177,19 +188,19 @@ export function AddModal() {
               />
             </div>
 
-            {/* Location Input */}
+            {/* suppler Input */}
             <div>
-              <label htmlFor="location" className="block font-medium">
-                Location
+              <label htmlFor="suppler" className="block font-medium">
+                Suppler
               </label>
               <input
                 type="text"
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                id="suppler"
+                value={supplier}
+                onChange={(e) => setSupplier(e.target.value)}
                 required
                 className="w-full px-4 py-2 border rounded-lg"
-                placeholder="Enter location"
+                placeholder="Enter supplier"
               />
             </div>
 

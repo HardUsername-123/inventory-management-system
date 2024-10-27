@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const productsSchema = new Schema(
+const reorderSchema = new Schema(
   {
     productId: {
       type: String,
@@ -32,7 +32,7 @@ const productsSchema = new Schema(
   }
 );
 
-const Product =
-  mongoose.models.Product || mongoose.model("Product", productsSchema);
+const Reorder =
+  mongoose.models.Reorder || mongoose.model("Reorder", reorderSchema);
 
-export default Product;
+export default Reorder;

@@ -16,7 +16,7 @@ import {
   ShoppingCartIcon,
   CurrencyDollarIcon,
 } from "@heroicons/react/outline";
-import { Chart } from "./Chart";
+import axios from "axios";
 import Loading from "./Loading";
 
 // Register components for ChartJS
@@ -30,26 +30,122 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
-  // Example data
-  const totalProducts = 150;
-  const totalSales = 500;
-  const totalRevenue = 25000;
+  const [sales, setSales] = useState([]);
+  const [product, setProduct] = useState([]);
+  const [error, setError] = useState(null);
+  const [grandTotal, setGrandTotal] = useState("");
+  const [totalSalesCount, setTotalSalesCount] = useState(0);
+  const [totalStockLevel, setTotalStockLevel] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Example product data for chart
-  const products = [
-    { name: "Product A", sold: 30 },
-    { name: "Product B", sold: 45 },
-    { name: "Product C", sold: 20 },
-  ];
+  const pesoFormatter = new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  });
 
-  // Chart data for sales
+  useEffect(() => {
+    const fetchSales = async () => {
+      try {
+        const response = await axios.get("/api/sales");
+        const salesData = response.data.sales;
+
+        // Get all sales data
+        const lastSevenSales = salesData;
+
+        // Aggregate sales data by product
+        const aggregatedSales = lastSevenSales.reduce((acc, sale) => {
+          const productName =
+            sale.inventoryItem?.productName || "Unknown Product";
+          const price = sale.inventoryItem?.price || 0;
+          const quantity = sale.quantity || 0;
+
+          if (!acc[productName]) {
+            acc[productName] = {
+              total: 0,
+              quantity: 0,
+              price: price,
+            };
+          }
+
+          // Update totals for existing products
+          acc[productName].total += price * quantity;
+          acc[productName].quantity += quantity;
+
+          return acc;
+        }, {});
+
+        // Prepare the sales data for charting
+        const salesDataForChart = Object.entries(aggregatedSales).map(
+          ([productName, data]) => ({
+            name: productName,
+            total: data.total,
+            quantity: data.quantity,
+          })
+        );
+
+        // Update sales state
+        setSales(salesDataForChart);
+
+        // Calculate the grand total
+        const grandTotalValue = salesDataForChart.reduce(
+          (acc, curr) => acc + curr.total,
+          0
+        );
+        setGrandTotal(pesoFormatter.format(grandTotalValue));
+
+        // Calculate total sales count (sum of quantities sold)
+        const totalSales = salesDataForChart.reduce(
+          (acc, sale) => acc + sale.quantity,
+          0
+        );
+        setTotalSalesCount(totalSales);
+
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data.message || "An error occurred");
+        setLoading(false);
+      }
+    };
+
+    fetchSales();
+  }, []);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await axios.get("/api/products");
+
+        if (res.status === 201) {
+          const productData = res.data.products; // Access the products data
+          setProduct(productData);
+
+          // Calculate the total stock level by summing the stockLevel of each product
+          const stockSum = productData.reduce(
+            (total, product) => total + (product.stockLevel || 0),
+            0
+          );
+
+          setTotalStockLevel(stockSum); // Update the total stock level state
+
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    };
+
+    getData();
+  }, []);
+
+  // Prepare data for the chart
   const chartData = {
-    labels: products.map((product) => product.name),
+    labels: sales.map((sale) => sale.name), // Use product names as labels
     datasets: [
       {
-        label: "Products Sold",
-        data: products.map((product) => product.sold),
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
+        label: "Sales",
+        data: sales.map((sale) => sale.total), // Total sales for each product
+        backgroundColor: "rgba(75, 192, 192, 0.6)", // Chart bar color
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
       },
@@ -59,55 +155,82 @@ const Dashboard = () => {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: { position: "top" },
+      legend: {
+        display: true,
+        position: "top",
+      },
       title: {
         display: true,
-        text: "Product Sales",
+        text: "Sales Overview",
+        color: "#fff",
+        font: {
+          size: 20,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: "#fff",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.2)",
+        },
+      },
+      x: {
+        ticks: {
+          color: "#fff",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.2)",
+        },
       },
     },
   };
 
+  if (loading)
+    return <Loading isOpen={loading} onClose={() => setLoading(false)} />;
+
   return (
-    <div className="px-6 my-5 space-y-8">
-      {/* Key Metrics Section */}
+    <div className="px-6 my-5 space-y-8 overflow-hidden">
+      <div>
+        <h1 className="text-2xl text-white">Dashboard</h1>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Total Products */}
         <div className="bg-blue-500 text-white p-6 rounded-lg shadow flex items-center">
           <CollectionIcon className="h-12 w-12 mr-4" />
           <div>
-            <h3 className="text-lg font-semibold">Total Products</h3>
-            <p className="text-4xl font-bold mt-2">{totalProducts}</p>
+            <h3 className="text-lg font-semibold">Total Stock Products</h3>
+            <p className="text-4xl font-bold mt-2">{totalStockLevel}</p>
           </div>
         </div>
 
-        {/* Total Sales */}
         <div className="bg-green-500 text-white p-6 rounded-lg shadow flex items-center">
           <ShoppingCartIcon className="h-12 w-12 mr-4" />
           <div>
-            <h3 className="text-lg font-semibold">Total Sales</h3>
-            <p className="text-4xl font-bold mt-2">{totalSales}</p>
+            <h3 className="text-lg font-semibold">Total Stock Sales</h3>
+            <p className="text-4xl font-bold mt-2">{totalSalesCount}</p>
           </div>
         </div>
 
-        {/* Total Revenue */}
         <div className="bg-yellow-500 text-white p-6 rounded-lg shadow flex items-center">
           <CurrencyDollarIcon className="h-12 w-12 mr-4" />
           <div>
             <h3 className="text-lg font-semibold">Total Revenue</h3>
-            <p className="text-4xl font-bold mt-2">
-              ${totalRevenue.toLocaleString()}
-            </p>
+            <p className="text-4xl font-bold mt-2">{grandTotal}</p>
           </div>
         </div>
       </div>
-      {/* Product Sales Chart */}
-      <div>
-        {/* <h2 className="text-2xl font-bold mb-4">Sales Chart</h2>
-     <div className="bg-white p-3 shadow rounded-lg">
-       <Bar data={chartData} options={chartOptions} />
-     </div> */}
-        <Chart />
+
+      <div className="bg-myBgDark-lifgtDark p-6 rounded-lg shadow">
+        {sales.length === 0 ? (
+          <div className="text-center text-white">No sales found</div>
+        ) : (
+          <Bar data={chartData} options={chartOptions} />
+        )}
       </div>
+      {/* <Loading isOpen={loading} onClose={() => setLoading(false)} /> */}
     </div>
   );
 };

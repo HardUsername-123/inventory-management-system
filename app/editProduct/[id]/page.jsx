@@ -1,6 +1,6 @@
 "use client";
 
-import { EditModal } from "@/app/inventoryItem/_components/EditModal";
+import { EditModal } from "@/app/editProduct/[id]/EditModal";
 import axios from "axios";
 
 // Use axios.get for fetching the product by ID

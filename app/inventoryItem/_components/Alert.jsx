@@ -10,7 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
+import { Trash, Trash2 } from "lucide-react";
 
 export function Alert({ remove }) {
   const handleDelete = () => {
@@ -27,7 +27,7 @@ export function Alert({ remove }) {
           variant="outline"
           className="text-red-500 hover:text-red-700"
         >
-          <Trash />
+          <Trash2 />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

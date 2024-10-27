@@ -1,72 +1,61 @@
-"use client";
-
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-
+// Chart.js
+import React from "react";
 import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-// Updated chart data to match with TotalProducts, TotalSales, and TotalRevenue
-const chartData = [
-  { month: "January", TotalProducts: 186, TotalSales: 80, TotalRevenue: 150 },
-  { month: "February", TotalProducts: 305, TotalSales: 200, TotalRevenue: 250 },
-  { month: "March", TotalProducts: 237, TotalSales: 120, TotalRevenue: 190 },
-  { month: "April", TotalProducts: 73, TotalSales: 190, TotalRevenue: 220 },
-  { month: "May", TotalProducts: 209, TotalSales: 130, TotalRevenue: 180 },
-  { month: "June", TotalProducts: 214, TotalSales: 140, TotalRevenue: 210 },
+// Sample data for the chart
+const data = [
+  { name: "Page A", uv: 4000, pv: 2400, amt: 2400 },
+  { name: "Page B", uv: 3000, pv: 1398, amt: 2210 },
+  { name: "Page C", uv: 2000, pv: 9800, amt: 2290 },
+  { name: "Page D", uv: 2780, pv: 3908, amt: 2000 },
+  { name: "Page E", uv: 1890, pv: 4800, amt: 2181 },
+  { name: "Page F", uv: 2390, pv: 3800, amt: 2500 },
+  { name: "Page G", uv: 3490, pv: 4300, amt: 2100 },
 ];
 
-const chartConfig = {
-  TotalProducts: {
-    label: "Total Products",
-    color: "#2563eb",
-  },
-  TotalSales: {
-    label: "Total Sales",
-    color: "#60a5fa",
-  },
-  TotalRevenue: {
-    label: "Total Revenue",
-    color: "#34d399",
-  },
+// Functional component for the LineChart
+const Chart = () => {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart
+        data={data}
+        margin={{
+          top: 5,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Line
+          type="monotone"
+          dataKey="pv"
+          stroke="#8884d8"
+          strokeDasharray="5 5"
+        />
+        <Line
+          type="monotone"
+          dataKey="uv"
+          stroke="#82ca9d"
+          strokeDasharray="3 4 5 2"
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
 };
 
-export function Chart() {
-  return (
-    <div className="bg-white p-8 rounded-lg">
-      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-        <BarChart data={chartData}>
-          <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="month"
-            tickLine={false}
-            tickMargin={10}
-            axisLine={false}
-            tickFormatter={(value) => value.slice(0, 3)}
-          />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend content={<ChartLegendContent />} />
-          <Bar
-            dataKey="TotalProducts"
-            fill={chartConfig.TotalProducts.color}
-            radius={4}
-          />
-          <Bar
-            dataKey="TotalSales"
-            fill={chartConfig.TotalSales.color}
-            radius={4}
-          />
-          <Bar
-            dataKey="TotalRevenue"
-            fill={chartConfig.TotalRevenue.color}
-            radius={4}
-          />
-        </BarChart>
-      </ChartContainer>
-    </div>
-  );
-}
+// Export the Chart component
+export default Chart;
