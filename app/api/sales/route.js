@@ -1,75 +1,64 @@
 import connectMongoDB from "@/lib/mongodb";
 import Sales from "@/models/sales";
 import Product from "@/models/products";
+import SalesItem from "@/models/salesItem";
 import { NextResponse } from "next/server";
 import { record } from "zod";
 
 // Create a new sales record
 export async function POST(req) {
   try {
-    const { productId, quantity } = await req.json();
-
+    const { sales } = await req.json();
     await connectMongoDB();
 
-    // Find the product by productId
-    const product = await Product.findOne({ productId });
-    if (!product) {
-      return NextResponse.json(
-        { message: "Product not found for the given productId" },
-        { status: 404 }
-      );
-    }
+    const salesRecords = await Promise.all(
+      sales.map(async ({ productId, quantity }) => {
+        // Find the product in the inventory
+        const product = await Product.findOne({ productId });
+        if (!product) throw new Error(`Product not found for ID ${productId}`);
 
-    // Check if there is enough stock to fulfill the sale
-    if (quantity >= product.stockLevel) {
-      return NextResponse.json(
-        { message: `Insufficient stock for this sale ${product.productName}` },
-        { status: 400 }
-      );
-    }
+        // Check stock levels
+        if (quantity > product.stockLevel)
+          throw new Error(`Insufficient stock for ${product.productName}`);
 
-    // Calculate the new stock level
-    const updatedStockLevel = product.stockLevel - quantity;
+        // // Update the product's stock level
+        // const updatedStockLevel = product.stockLevel - quantity;
+        // await Product.findByIdAndUpdate(product._id, {
+        //   stockLevel: updatedStockLevel,
+        // });
 
-    // Update the product's stock level in the database
-    await Product.findByIdAndUpdate(product._id, {
-      stockLevel: updatedStockLevel,
-    });
+        // Create the sales record
+        const saleRecord = await Sales.create({
+          productId,
+          quantity,
+          inventoryItem: product._id,
+        });
 
-    // Create a new sales record
-    const newSalesRecord = await Sales.create({
-      productId,
-      quantity,
-      inventoryItem: product._id,
-    });
+        if (!saleRecord) {
+          return NextResponse.json(
+            { message: "No sales Item." },
+            { status: 404 }
+          );
+        }
 
-    // Convert timestamps to Philippine time
-    const createdAtPHT = newSalesRecord.createdAt.toLocaleString("en-US", {
-      timeZone: "Asia/Manila",
-    });
-    const updatedAtPHT = newSalesRecord.updatedAt.toLocaleString("en-US", {
-      timeZone: "Asia/Manila",
-    });
+        // Remove the item from SalesItem collection
+        await SalesItem.deleteOne({ productId, quantity });
 
-    // Return success response with updated product and sales record
+        return saleRecord;
+      })
+    );
+
     return NextResponse.json(
       {
-        message: "Sales record created successfully",
-        salesRecord: {
-          ...newSalesRecord._doc,
-          createdAt: createdAtPHT,
-          updatedAt: updatedAtPHT,
-        },
-        updatedProduct: {
-          ...product._doc,
-          stockLevel: updatedStockLevel,
-        },
+        message:
+          "All sales records created and corresponding items removed from SalesItem successfully",
+        salesRecords,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Server Error:", error);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
@@ -101,5 +90,29 @@ export async function GET(req) {
       { message: "Server error", error: error.message },
       { status: 500 }
     );
+  }
+}
+
+//delete
+export async function DELETE(request) {
+  // Get the ID from the URL search parameters
+  const id = request.nextUrl.searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ message: "ID is required" }, { status: 400 });
+  }
+  try {
+    await connectMongoDB();
+
+    const deletedSales = await Sales.findByIdAndDelete(id);
+
+    if (!deletedSales) {
+      return NextResponse.json({ message: "Sales not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Sales deleted" }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting Sales:", error);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

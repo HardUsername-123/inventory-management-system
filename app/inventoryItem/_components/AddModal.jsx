@@ -95,7 +95,7 @@ export function AddModal({ onAdd }) {
           className="text-white bg-indigo-600 hover:bg-indigo-800 hover:text-white border-none"
         >
           <PlusIcon className="text-white" />
-          Add product
+          Add Stock
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">

@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import Loading from "@/app/_components/Loading";
 import { Eye, Plus, Search, Trash2, View } from "lucide-react";
 import { AddModal } from "../../inventoryItem/_components/AddModal";
-import { EditFormModal } from "../../inventoryItem/_components/EditFormModal";
-import RemoveBtn from "../../inventoryItem/_components/RemoveBtn";
+import { EditFormModal } from "./_components/EditFormModal";
+import RemoveBtn from "./_components/RemoveBtn";
 import {
   Table,
   TableBody,
@@ -34,6 +34,8 @@ const SalesInventory = () => {
   const [product, setProduct] = useState();
   const [totalStockLevel, setTotalStockLevel] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
 
   // Define the formatter for PHP currency
   const pesoFormatter = new Intl.NumberFormat("en-PH", {
@@ -82,6 +84,30 @@ const SalesInventory = () => {
     fetchSales();
   }, []);
 
+  // Function to handle deletion and update the state
+  const handleDelete = (id) => {
+    setProduct(sales.filter((item) => item._id !== id)); // Remove deleted item from product array
+  };
+
+  // Handle search input and filter data
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value !== "") {
+      const filtered = sales.filter(
+        (item) =>
+          item.inventoryItem?.productName
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          item.productId.toString().toLowerCase().includes(value.toLowerCase()) // Convert productId to string
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
+    }
+  };
+
   return (
     <>
       <div className="p-5">
@@ -96,13 +122,13 @@ const SalesInventory = () => {
                 <input
                   type="text"
                   placeholder="Search sales..."
-                  // value={searchTerm}
-                  // onChange={handleSearch}
+                  value={searchTerm}
+                  onChange={handleSearch}
                   className="px-4 py-2 focus:outline-none rounded-lg text-white bg-myBgDark-textSoft"
                 />
               </div>
 
-              {/* {searchTerm && filteredData.length > 0 && (
+              {searchTerm && filteredData.length > 0 && (
                 <div className="absolute top-full mt-2 w-full bg-white shadow-lg rounded-lg z-50">
                   {filteredData.map((item) => (
                     <div
@@ -114,7 +140,7 @@ const SalesInventory = () => {
                     </div>
                   ))}
                 </div>
-              )} */}
+              )}
             </div>
             <Link href={"/addSales"}>
               <Button className="bg-indigo-600">
@@ -164,14 +190,8 @@ const SalesInventory = () => {
                     <TableCell className="text-white">{total[index]}</TableCell>
                     <TableCell className="space-x-2">
                       {/* <Link href={`/editProduct/${item._id}`}>Update</Link> */}
-                      <Link href={"/viewSales"}>
-                        <Button className="bg-green-500">
-                          <Eye />
-                        </Button>
-                      </Link>
-                      <Button className="bg-red-500">
-                        <Trash2 />
-                      </Button>
+                      <EditFormModal id={item._id} />
+                      <RemoveBtn id={item._id} onDelete={handleDelete} />
                     </TableCell>
                   </TableRow>
                 ))
