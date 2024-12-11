@@ -14,10 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { PencilIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import swal from "sweetalert";
+import Swal from "sweetalert2";
 
 export function AddModal({ onAdd }) {
   // State to hold product details
@@ -28,6 +28,7 @@ export function AddModal({ onAdd }) {
   const [stockLevel, setStockLevel] = useState("");
   const [price, setPrice] = useState("");
   const [supplier, setSupplier] = useState("");
+  const [supplierId, setSupplierId] = useState([]);
 
   const router = useRouter();
   const { toast } = useToast(); // Correct destructure
@@ -55,13 +56,11 @@ export function AddModal({ onAdd }) {
         //   className: "bg-green-500 text-white", // Apply custom classes for green background and white text
         // });
 
-        swal({
-          position: "top-end",
+        Swal.fire({
+          title: "Success",
+          text: "Product created successfully.",
           icon: "success",
-          title: "Product created successfully.",
-          showConfirmButton: false,
         });
-
         console.log("Mao ni", res.data.product);
         onAdd(res.data.product);
 
@@ -85,6 +84,20 @@ export function AddModal({ onAdd }) {
       });
     }
   };
+
+  useEffect(() => {
+    const getSupplier = async () => {
+      try {
+        const res = await axios.get("/api/supplier");
+
+        setSupplierId(res.data.getSupplier);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getSupplier();
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -193,22 +206,33 @@ export function AddModal({ onAdd }) {
               <label htmlFor="suppler" className="block font-medium">
                 Suppler
               </label>
-              <input
-                type="text"
-                id="suppler"
+              <select
+                id="supplier"
                 value={supplier}
                 onChange={(e) => setSupplier(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded-lg"
-                placeholder="Enter supplier"
-              />
+                className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="" disabled>
+                  Choose a supplier
+                </option>
+                {supplierId.map((supplier, index) => (
+                  <option key={index} value={supplier.supplierId}>
+                    {supplier.supplierId}
+                  </option>
+                ))}
+              </select>
+              {supplier && (
+                <p className="mt-2 text-sm text-gray-600">
+                  Selected Supplier ID: <strong>{supplier}</strong>
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
             <div>
               <Button
                 type="submit"
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                className="px-6 py-2 text-white rounded-lg bg-indigo-500 hover:bg-indigo-600"
               >
                 Add Product
               </Button>

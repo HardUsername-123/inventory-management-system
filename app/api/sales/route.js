@@ -17,15 +17,15 @@ export async function POST(req) {
         const product = await Product.findOne({ productId });
         if (!product) throw new Error(`Product not found for ID ${productId}`);
 
-        // Check stock levels
-        if (quantity > product.stockLevel)
-          throw new Error(`Insufficient stock for ${product.productName}`);
+        // // Check stock levels
+        // if (quantity > product.stockLevel)
+        //  throw new Error(`Insufficient stock for ${product.productName}`);
 
-        // // Update the product's stock level
-        // const updatedStockLevel = product.stockLevel - quantity;
-        // await Product.findByIdAndUpdate(product._id, {
-        //   stockLevel: updatedStockLevel,
-        // });
+        // Update the product's stock level
+        const updatedStockLevel = product.stockLevel - quantity;
+        await Product.findByIdAndUpdate(product._id, {
+          stockLevel: updatedStockLevel,
+        });
 
         // Create the sales record
         const saleRecord = await Sales.create({
@@ -33,13 +33,6 @@ export async function POST(req) {
           quantity,
           inventoryItem: product._id,
         });
-
-        if (!saleRecord) {
-          return NextResponse.json(
-            { message: "No sales Item." },
-            { status: 404 }
-          );
-        }
 
         // Remove the item from SalesItem collection
         await SalesItem.deleteOne({ productId, quantity });
@@ -72,7 +65,8 @@ export async function GET(req) {
       ...record._doc,
       inventoryItem: record.inventoryItem
         ? {
-            ...record.inventoryItem._doc, // spread the populated inventoryItem fields
+            // spread the populated inventoryItem fields
+            ...record.inventoryItem._doc,
           }
         : null,
       createdAt: record.createdAt.toLocaleString("en-US", {

@@ -46,10 +46,12 @@ export function EditFormModal({ id, onUpdate }) {
         } else {
           setData(res.data.getItem);
           setNewProductId(res.data.getItem.productId);
-          setNewProductName(res.data.getItem.productName);
+          setNewProductName(res.data.getItem.inventoryItem?.productName);
           setNewQuantity(res.data.getItem.quantity);
-          setNewPrice(res.data.getItem.price);
-          setNewTotal(res.data.getItem.total);
+          setNewPrice(res.data.getItem.inventoryItem?.price);
+          setNewTotal(res.data.total);
+
+          console.log(res.data.getItem);
         }
 
         // return res.data.getItem;
@@ -95,9 +97,6 @@ export function EditFormModal({ id, onUpdate }) {
         throw new Error("Failed to update the product");
       }
 
-      // Call the onUpdate function to update the product in the parent component's state
-      onUpdate(res.data.updateProduct); // Ensure res.data.updateProduct is valid
-
       // Close the modal
       setOpen(false);
 
@@ -109,7 +108,7 @@ export function EditFormModal({ id, onUpdate }) {
       });
 
       // Optionally refresh the data without reloading the page
-      router.push("/inventoryItem");
+      // router.push("/inventoryItem");
     } catch (error) {
       console.log(error);
       toast({

@@ -30,6 +30,8 @@ export function EditFormModal({ id, onUpdate }) {
   const [newSupplier, setNewSupplier] = useState();
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [supplierId, setSupplierId] = useState([]);
+  const [supplier, setSupplier] = useState("");
 
   const router = useRouter();
   const { toast } = useToast();
@@ -52,6 +54,8 @@ export function EditFormModal({ id, onUpdate }) {
           setNewStockLevel(res.data.getItem.stockLevel);
           setNewPrice(res.data.getItem.price);
           setNewSupplier(res.data.getItem.supplier);
+          // setSupplierId(res.data.getItem.supplier);
+          setSupplier("");
         }
 
         // return res.data.getItem;
@@ -101,6 +105,7 @@ export function EditFormModal({ id, onUpdate }) {
 
       // Call the onUpdate function to update the product in the parent component's state
       onUpdate(res.data.updateProduct); // Ensure res.data.updateProduct is valid
+      console.log("gaga", res.data.updateProduct.productId);
 
       // Close the modal
       setOpen(false);
@@ -124,6 +129,20 @@ export function EditFormModal({ id, onUpdate }) {
     }
   };
 
+  useEffect(() => {
+    const getSupplier = async () => {
+      try {
+        const res = await axios.get("/api/supplier");
+
+        setSupplierId(res.data.getSupplier);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getSupplier();
+  });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -135,7 +154,7 @@ export function EditFormModal({ id, onUpdate }) {
           <PencilIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
@@ -143,7 +162,7 @@ export function EditFormModal({ id, onUpdate }) {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div>
             <Label htmlFor="productId" className="text-right">
               ID
             </Label>
@@ -154,7 +173,7 @@ export function EditFormModal({ id, onUpdate }) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div>
             <Label htmlFor="name" className="text-right">
               Product name
             </Label>
@@ -165,7 +184,7 @@ export function EditFormModal({ id, onUpdate }) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div>
             <Label htmlFor="category" className="text-right">
               Category
             </Label>
@@ -176,7 +195,7 @@ export function EditFormModal({ id, onUpdate }) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div>
             <Label htmlFor="stockLevel" className="text-right">
               Stock Level
             </Label>
@@ -188,7 +207,7 @@ export function EditFormModal({ id, onUpdate }) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div>
             <Label htmlFor="price" className="text-right">
               Price
             </Label>
@@ -200,7 +219,7 @@ export function EditFormModal({ id, onUpdate }) {
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          {/* <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="supplier" className="text-right">
               Supplier
             </Label>
@@ -210,10 +229,41 @@ export function EditFormModal({ id, onUpdate }) {
               value={newSupplier}
               className="col-span-3"
             />
+          </div> */}
+
+          {/* suppler Input */}
+          <div>
+            <label htmlFor="suppler" className="block font-medium">
+              Supplier
+            </label>
+            <select
+              id="supplier"
+              value={newSupplier}
+              onChange={(e) => setNewSupplier(e.target.value)}
+              className="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="" disabled>
+                Choose a supplier
+              </option>
+              {supplierId.map((supplier, index) => (
+                <option key={index} value={supplier.supplierId}>
+                  {supplier.supplierId}
+                </option>
+              ))}
+            </select>
+            {newSupplier && (
+              <p className="mt-2 text-sm text-gray-600">
+                Supplier ID: <strong>{newSupplier}</strong>
+              </p>
+            )}
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSubmit} type="submit">
+          <Button
+            onClick={handleSubmit}
+            type="submit"
+            className="bg-indigo-500 hover:bg-indigo-600"
+          >
             Save changes
           </Button>
         </DialogFooter>

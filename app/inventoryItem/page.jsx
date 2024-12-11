@@ -27,6 +27,7 @@ import EditProduct, {
 import { InfinitySpin, Triangle } from "react-loader-spinner";
 import Loading from "../_components/Loading";
 import { Search } from "lucide-react";
+import Swal from "sweetalert2";
 
 const InventoryItem = () => {
   const [product, setProduct] = useState([]);
@@ -34,9 +35,10 @@ const InventoryItem = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updateId, setUpadateId] = useState([]);
 
   // Set the number of items per page
-  const itemsPerPage = 5;
+  const itemsPerPage = 7;
 
   // Define the formatter for PHP currency
   const pesoFormatter = new Intl.NumberFormat("en-PH", {
@@ -52,38 +54,63 @@ const InventoryItem = () => {
 
         if (res.status === 201) {
           // Access the correct data field
-          setProduct(res.data.products); // Use 'products' as returned by the backend
+          setProduct(res.data.products);
           setLoading(false);
 
+          res.data.products.forEach((product) => {
+            console.log("Product ID:", product.productId); // Access the id
+            setUpadateId(product.id);
+          });
+
           // Function to show alert for each low stock product
-          const showAlertsSequentially = (products, index = 0) => {
-            // Check if we have more products to show alerts for
-            if (index < products.length) {
-              const product = products[index];
+          // const showAlertsSequentially = async (products, index = 0) => {
+          //   // Ensure we're within bounds of the products array
+          //   if (index < products.length) {
+          //     const product = products[index];
 
-              // Show the alert for the current product
-              swal({
-                position: "top-end",
-                icon: "warning",
-                title: `Reorder alert for ${product.productName}: stock level is below ${product.stockLevel}.`,
-                showConfirmButton: true,
-              }).then(() => {
-                // Call the function recursively for the next product after the alert is dismissed
-                showAlertsSequentially(products, index + 1);
-              });
-            }
-          };
+          //     try {
+          //       // Show the alert for the current product
+          //       await swal({
+          //         position: "top-end",
+          //         icon: "warning",
+          //         title: `Reorder alert for ${product.productName}: stock level is below ${product.stockLevel}.`,
+          //         showConfirmButton: true,
+          //       });
 
-          // Example usage:
+          //       // Make the axios request to reorder after the alert is dismissed
+          //       await axios.post("/api/reorder", {
+          //         productId: product.productId,
+          //         productName: product.productName,
+          //         category: product.category,
+          //         stockLevel: product.stockLevel,
+          //         price: product.price,
+          //         supplier: product.supplier,
+          //       });
+          //       // Continue with the next product
+          //       await showAlertsSequentially(products, index + 1);
+          //     } catch (error) {
+          //       console.error("Error processing product:", product, error);
+          //       swal({
+          //         position: "top-end",
+          //         icon: "error",
+          //         title: `Failed to reorder ${product.productName}: ${
+          //           error.response?.data?.message || error.message
+          //         }`,
+          //         showConfirmButton: true,
+          //       });
+          //     }
+          //   }
+          // };
+
           // Check stock levels and show individual reorder alerts if necessary
           const lowStockProducts = res.data.products.filter(
             (product) => product.stockLevel < 10
           );
 
-          // Start showing alerts if there are low stock products
-          if (lowStockProducts.length > 0) {
-            showAlertsSequentially(lowStockProducts);
-          }
+          // // Start showing alerts if there are low stock products
+          // if (lowStockProducts.length > 0) {
+          //   showAlertsSequentially(lowStockProducts);
+          // }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -113,22 +140,22 @@ const InventoryItem = () => {
 
   // Function to handle adding a new product
   const handleAdd = (newProduct) => {
-    setProduct([...product, newProduct]); // Append the new product to the current state
+    // Append the new product to the current state
+    setProduct([...product, newProduct]);
   };
 
   const handleUpdate = (updatedProduct) => {
     setProduct((prevProducts) =>
       prevProducts.map((product) =>
-        product._id === updatedProduct._id ? updatedProduct : product
+        updateId === updatedProduct.productId ? updatedProduct : product
       )
     );
-    console.log("1", product);
-    console.log("2", updatedProduct);
   };
 
   // Function to handle deletion and update the state
   const handleDelete = (id) => {
-    setProduct(product.filter((item) => item._id !== id)); // Remove deleted item from product array
+    // Remove deleted item from product array
+    setProduct(product.filter((item) => item._id !== id));
   };
 
   // Handle search input and filter data
@@ -136,11 +163,12 @@ const InventoryItem = () => {
     const value = e.target.value;
     setSearchTerm(value);
 
-    if (value !== "") {
+    if (value) {
       const filtered = product.filter(
         (item) =>
           item.productName.toLowerCase().includes(value.toLowerCase()) ||
-          item.productId.toString().toLowerCase().includes(value.toLowerCase()) // Convert productId to string
+          // Convert productId to string
+          item.productId.toString().toLowerCase().includes(value.toLowerCase())
       );
       setFilteredData(filtered);
     } else {
@@ -148,17 +176,22 @@ const InventoryItem = () => {
     }
   };
 
+  const handleSelectSearchItem = (item) => {
+    setSearchTerm(item.productName || item.productId);
+    setFilteredData([]); // Clear search results
+  };
+
   return (
     <>
       <div className="p-5">
-        <div>
+        {/* <div>
           <h1 className="text-2xl mb-5  text-white">Inventory</h1>
-        </div>
+        </div> */}
         {/* Table */}
-        <div className="overflow-x-auto h-[550px] w-full bg-myBgDark-lifgtDark rounded-lg px-3">
+        <div className="overflow-x-auto h-[600px] w-full bg-myBgDark-lifgtDark rounded-lg px-3">
           {/* Search Box */}
           <div className="flex justify-between my-3">
-            <div className="w-72">
+            <div className="w-72 relative">
               <div className="flex items-center rounded-lg bg-myBgDark-textSoft">
                 <Search className="w-5 h-5 text-slate-100 ml-3" />
                 <input
@@ -166,21 +199,18 @@ const InventoryItem = () => {
                   placeholder="Search inventory..."
                   value={searchTerm}
                   onChange={handleSearch}
-                  className="px-4 py-2 focus:outline-none rounded-lg text-white bg-myBgDark-textSoft "
+                  className="px-4 py-2 focus:outline-none rounded-lg text-white bg-myBgDark-textSoft"
                 />
               </div>
-
               {searchTerm && filteredData.length > 0 && (
-                <div className="absolute top-full mt-2 w-full bg-white shadow-lg rounded-lg z-50">
+                <div className="absolute top-12 left-0 w-full bg-white shadow-lg rounded-lg z-50">
                   {filteredData.map((item) => (
                     <div
                       key={item._id}
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setSearchTerm(item.productName)}
+                      onClick={() => handleSelectSearchItem(item)}
                     >
-                      {/* Link can be enabled if needed */}
-                      {/* <Link href={`/details/${item._id}`}>{item.productName}</Link> */}
-                      {item.productName}
+                      {item.productName || item.productId}
                     </div>
                   ))}
                 </div>
@@ -188,11 +218,11 @@ const InventoryItem = () => {
             </div>
             <AddModal onAdd={handleAdd} />
           </div>
-          <Table className="min-w-full bg-myBgDark-lifgtDark shadow-md rounded-lg no-scrollbar">
-            <TableHeader>
+          <Table className="min-w-full bg-myBgDark-lifgtDark shadow-md rounded-lg no-scrollbar mt-10">
+            <TableHeader className="bg-myBgDark-textSoft">
               <TableRow>
                 <TableHead className="text-white ">Date Created</TableHead>
-                <TableHead className="text-white ">ID</TableHead>
+                <TableHead className="text-white ">Product ID</TableHead>
                 <TableHead className="text-white ">Product Name</TableHead>
                 <TableHead className="text-white ">Category</TableHead>
                 <TableHead className="text-white ">Stock Level</TableHead>
@@ -230,8 +260,16 @@ const InventoryItem = () => {
                       {item.supplier}
                     </TableCell>
                     <TableCell className="space-x-2">
-                      {/* <Link href={`/editProduct/${item._id}`}>Update</Link> */}
-                      <EditFormModal id={item._id} onUpdate={handleUpdate} />
+                      <Link href={`/editProduct/${item._id}`}>
+                        <Button
+                          aria-label="Edit"
+                          variant="outline"
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          <PencilIcon />
+                        </Button>
+                      </Link>
+                      {/* <EditFormModal id={item._id} onUpdate={handleUpdate} /> */}
                       <RemoveBtn id={item._id} onDelete={handleDelete} />
                     </TableCell>
                   </TableRow>
@@ -248,6 +286,9 @@ const InventoryItem = () => {
               )}
             </TableBody>
           </Table>
+          <div className="text-white font-bold flex justify-end items-center mr-20">
+            {product.length} Items (s)
+          </div>
 
           {/* Pagination */}
           <div className="flex justify-between items-center m-3">

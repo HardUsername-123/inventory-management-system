@@ -28,13 +28,13 @@ export async function POST(req) {
       );
     }
 
-    // Calculate the new stock level
-    const updatedStockLevel = product.stockLevel - quantity;
+    // // Calculate the new stock level
+    // const updatedStockLevel = product.stockLevel - quantity;
 
-    // Update the product's stock level in the database
-    await Product.findByIdAndUpdate(product._id, {
-      stockLevel: updatedStockLevel,
-    });
+    // // Update the product's stock level in the database
+    // await Product.findByIdAndUpdate(product._id, {
+    //   stockLevel: updatedStockLevel,
+    // });
 
     // Create a new sales record
     const newSalesItemRecord = await SalesItem.create({
@@ -60,10 +60,10 @@ export async function POST(req) {
           createdAt: createdAtPHT,
           updatedAt: updatedAtPHT,
         },
-        updatedProduct: {
-          ...product._doc,
-          stockLevel: updatedStockLevel,
-        },
+        // updatedProduct: {
+        //   ...product._doc,
+        //   stockLevel: updatedStockLevel,
+        // },
       },
       { status: 200 }
     );

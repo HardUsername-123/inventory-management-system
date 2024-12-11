@@ -52,7 +52,9 @@ export async function GET() {
     const getProduct = await Product.find();
 
     // Convert timestamps to Philippine time for each product
+    // Convert timestamps to Philippine time for each product
     const productsPHT = getProduct.map((product) => ({
+      id: product._id.toString(), // Convert MongoDB ObjectId to a string
       ...product._doc,
       createdAt: product.createdAt.toLocaleString("en-US", {
         timeZone: "Asia/Manila",

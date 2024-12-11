@@ -3,24 +3,16 @@ import "./globals.css";
 import Header from "./_components/Header";
 import Footer from "./_components/Footer";
 import Sidebar from "./_components/Sidebar";
-import { Toaster } from "@/components/ui/toaster";
+
+import LoginScreen from "./_components/LoginScreen";
+import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "sonner";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
-// const geistSans = localFont({
-//   src: "./fonts/GeistVF.woff",
-//   variable: "--font-geist-sans",
-//   weight: "100 900",
-// });
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",
-//   variable: "--font-geist-mono",
-//   weight: "100 900",
-// });
-
 export const metadata = {
-  title: "Henry's Hardware",
-  description: "Henrys harware inventory management system",
+  title: "Hardware Shop",
+  description: "Henry's Hardware Inventory Management System",
   icons: {
     icon: "/logo.svg",
   },
@@ -28,21 +20,29 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={outfit.className}>
-        <div className="md:grid md:grid-cols-12">
-          <aside className="col-span-2 md:col-span-3">
-            <Sidebar />
-          </aside>
-
-          <main className="col-span-9 md:col-span-9 bg-myBgDark-darkBg max-h-screen overflow-scroll no-scrollbar">
-            <Header />
-            {children}
-            <Footer />
-          </main>
-          <Toaster />
-        </div>
-      </body>
-    </html>
+    <AuthProvider>
+      <html lang="en">
+        <head>
+          <title>{metadata.title}</title>
+          <meta name="description" content={metadata.description} />
+          <link rel="icon" href={metadata.icons.icon} />
+        </head>
+        <body className={outfit.className}>
+          <LoginScreen>
+            <div className="md:grid md:grid-cols-12">
+              <aside className="col-span-2 md:col-span-3">
+                <Sidebar />
+              </aside>
+              <main className="col-span-9 md:col-span-9 bg-myBgDark-darkBg max-h-screen overflow-scroll no-scrollbar">
+                <Header />
+                {children}
+                <Footer />
+              </main>
+              <Toaster richColors />
+            </div>
+          </LoginScreen>
+        </body>
+      </html>
+    </AuthProvider>
   );
 }

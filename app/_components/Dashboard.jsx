@@ -18,6 +18,17 @@ import {
 } from "@heroicons/react/outline";
 import axios from "axios";
 import Loading from "./Loading";
+import { useAuth } from "@/context/AuthContext";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ContactRound, ListFilterIcon, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Register components for ChartJS
 ChartJS.register(
@@ -37,6 +48,25 @@ const Dashboard = () => {
   const [totalSalesCount, setTotalSalesCount] = useState(0);
   const [totalStockLevel, setTotalStockLevel] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    // Get the role from localStorage
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []);
+
+  const { isAuthenticated } = useAuth(); // Get role and authentication status from context
+
+  console.log("...///", role);
+
+  if (!isAuthenticated) {
+    return null; // Optionally, return null or a loading state until the user is authenticated
+  }
 
   const pesoFormatter = new Intl.NumberFormat("en-PH", {
     style: "currency",
@@ -189,16 +219,35 @@ const Dashboard = () => {
     },
   };
 
+  useEffect(() => {
+    // Fetch user data from the API
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/getUser");
+
+        // Save user data to state
+        setUsers(response.data.getUsers);
+        console.log(response.data.getUsers);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError(err.response?.data?.message || "An error occurred");
+      }
+    };
+    fetchUserData();
+  });
+
+  const updatedUsers = users.slice(1);
+
   if (loading)
     return <Loading isOpen={loading} onClose={() => setLoading(false)} />;
 
   return (
     <div className="px-6 my-5 space-y-8 overflow-hidden">
-      <div>
+      {/* <div>
         <h1 className="text-2xl text-white">Dashboard</h1>
-      </div>
+      </div> */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-blue-500 text-white p-6 rounded-lg shadow flex items-center">
+        <div className="bg-green-500 hover:bg-green-400 text-white p-6 rounded-lg shadow flex items-center">
           <CollectionIcon className="h-12 w-12 mr-4" />
           <div>
             <h3 className="text-lg font-semibold">Total Stock Products</h3>
@@ -206,7 +255,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-green-500 text-white p-6 rounded-lg shadow flex items-center">
+        <div className="bg-blue-500  hover:bg-blue-400 text-white p-6 rounded-lg shadow flex items-center">
           <ShoppingCartIcon className="h-12 w-12 mr-4" />
           <div>
             <h3 className="text-lg font-semibold">Total Stock Sales</h3>
@@ -214,7 +263,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-yellow-500 text-white p-6 rounded-lg shadow flex items-center">
+        <div className="bg-yellow-500 hover:bg-yellow-400 text-white p-6 rounded-lg shadow flex items-center">
           <CurrencyDollarIcon className="h-12 w-12 mr-4" />
           <div>
             <h3 className="text-lg font-semibold">Total Revenue</h3>
@@ -222,6 +271,105 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {role === "admin" && (
+        <>
+          <div className="">
+            {/* Table */}
+            <div className="overflow-x-auto w-full bg-myBgDark-lifgtDark rounded-lg px-3">
+              {/* Search Box */}
+              <div className="flex justify-between my-3">
+                <div>
+                  <h1 className="text-lg font-semibold mb-5 text-center text-slate-100 items-center">
+                    <ContactRound className="inline-block w-7 h-7 mr-2" />
+                    Cashier List
+                  </h1>
+                </div>
+              </div>
+              <Table className="min-w-full bg-myBgDark-lifgtDark rounded-lg no-scrollbar mt-5 mb-5">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-white ">Cashier</TableHead>
+                    <TableHead className="text-white ">Username</TableHead>
+                    <TableHead className="text-white ">Password</TableHead>
+                    <TableHead className="text-white ">Affiliation</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="border-none">
+                  {updatedUsers.map((user, index) => (
+                    <TableRow
+                      key={index}
+                      className="border-none hover:bg-myBgDark-darkBg"
+                    >
+                      <TableCell className="text-white">
+                        <div className="flex items-center">
+                          {/* <img
+                            src={
+                              user.image
+                                ? user.image
+                                : "https://via.placeholder.com/100"
+                            }
+                            alt={
+                              user.name ? `${user.name}'s Profile` : "Profile"
+                            }
+                            className="size-10 rounded-full object-cover mr-5"
+                          /> */}
+                          {user.name}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white">
+                        {user.username}
+                      </TableCell>
+                      <TableCell className="text-white">
+                        {user.password}
+                      </TableCell>
+                      <TableCell className="text-white">
+                        {user.affiliation}
+                      </TableCell>
+                      {/* <TableCell className="space-x-2">
+                        <Button className="bg-red-500 hover:bg-red-600 rounded-full">
+                          <Trash2 />
+                          Remove
+                        </Button>
+                      </TableCell> */}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              {/* <div className="flex justify-between items-center m-3">
+               <Pagination className="flex-grow flex items-center">
+                 <PaginationPrevious
+                   onClick={() => handlePageChange(currentPage - 1)}
+                   disabled={currentPage === 1}
+                   className="text-white cursor-pointer bg-myBgDark-textSoft"
+                 >
+                   Previous
+                 </PaginationPrevious>
+   
+                 <PaginationContent className="flex-grow flex justify-center">
+                   <span className="text-sm text-white">
+                     Page {currentPage} of {totalPages}
+                   </span>
+                 </PaginationContent>
+   
+                 <PaginationNext
+                   onClick={() => handlePageChange(currentPage + 1)}
+                   disabled={currentPage === totalPages}
+                   className="text-white cursor-pointer bg-myBgDark-textSoft"
+                 >
+                   Next
+                 </PaginationNext>
+               </Pagination>
+             </div> */}
+            </div>
+          </div>
+
+          {/* Loading Dialog */}
+          {/* <Loading isOpen={loading} onClose={() => setLoading(false)} /> */}
+        </>
+      )}
 
       <div className="bg-myBgDark-lifgtDark p-6 rounded-lg shadow">
         {sales.length === 0 ? (
