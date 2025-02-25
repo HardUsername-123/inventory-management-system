@@ -52,7 +52,7 @@ const Sidebar = () => {
   return (
     <div className="flex h-screen flex-col justify-between border-b bg-myBgDark-lifgtDark">
       <div className="px-4 py-6 pl-5">
-        <Link href={"/"}>
+        <Link href={"/"} prefetch>
           {/* <h1 className="text-2xl font-bold text-white pl-5">
             <HardHat className="inline-block w-9 h-9 mr-2 text-white" />
             Hardware <span className="text-indigo-600"> Shop</span>
@@ -72,21 +72,10 @@ const Sidebar = () => {
               className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                 pathName === "/" ? "bg-myBgDark-textSoft" : ""
               }`}
+              prefetch
             >
               <LayoutDashboard className="inline-block w-5 h-5 mr-2" />
               Dashboard
-            </Link>
-          </li>
-
-          <li>
-            <Link
-              href={"/inventoryItem"}
-              className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
-                pathName === "/inventoryItem" ? "bg-myBgDark-textSoft" : ""
-              }`}
-            >
-              <Box className="inline-block w-5 h-5 mr-2" />
-              Inventory
             </Link>
           </li>
 
@@ -105,6 +94,7 @@ const Sidebar = () => {
                   className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                     pathName === "/sales" ? "bg-myBgDark-textSoft" : ""
                   }`}
+                  prefetch
                 >
                   <Coins className="inline-block w-5 h-5 mr-2" />
                   Sales List
@@ -117,6 +107,7 @@ const Sidebar = () => {
                   className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                     pathName === "/addSales" ? "bg-myBgDark-textSoft" : ""
                   }`}
+                  prefetch
                 >
                   <PlusCircle className="inline-block w-5 h-5 mr-2" />
                   Add Sales
@@ -129,6 +120,7 @@ const Sidebar = () => {
                   className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                     pathName === "/reportSales" ? "bg-myBgDark-textSoft" : ""
                   }`}
+                  prefetch
                 >
                   <NotepadText className="inline-block w-5 h-5 mr-2" />
                   Report
@@ -142,6 +134,7 @@ const Sidebar = () => {
               className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                 pathName === "/order" ? "bg-myBgDark-textSoft" : ""
               }`}
+              prefetch
             >
               <ShoppingCart className="inline-block w-5 h-5 mr-2" />
               Order
@@ -149,6 +142,18 @@ const Sidebar = () => {
           </li>
           {role === "admin" && (
             <>
+              <li>
+                <Link
+                  href={"/inventoryItem"}
+                  className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
+                    pathName === "/inventoryItem" ? "bg-myBgDark-textSoft" : ""
+                  }`}
+                  prefetch
+                >
+                  <Box className="inline-block w-5 h-5 mr-2" />
+                  Inventory
+                </Link>
+              </li>
               {/* <li>
                 <Link
                   href={"/cashierReport"}
@@ -167,6 +172,7 @@ const Sidebar = () => {
                   className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                     pathName === "/customer" ? "bg-myBgDark-textSoft" : ""
                   }`}
+                  prefetch
                 >
                   <UserGroupIcon className="inline-block w-5 h-5 mr-2" />
                   Customers
@@ -179,6 +185,7 @@ const Sidebar = () => {
                   className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                     pathName === "/supplier" ? "bg-myBgDark-textSoft" : ""
                   }`}
+                  prefetch
                 >
                   <MapPinHouse className="inline-block w-5 h-5 mr-2" />
                   Suppliers
@@ -191,6 +198,7 @@ const Sidebar = () => {
                   className={`block rounded-lg px-4 py-2 text-sm font-medium text-white hover:bg-myBgDark-textSoft hover:text-slate-100 ${
                     pathName === "/user" ? "bg-myBgDark-textSoft" : ""
                   }`}
+                  prefetch
                 >
                   <UserGroupIcon className="inline-block w-5 h-5 mr-2" />
                   Users

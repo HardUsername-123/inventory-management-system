@@ -106,11 +106,6 @@ export default function LoginScreen({ children }) {
                     alt="myLogo"
                   />
                 </div>
-                <p className="mt-4 text-slate-50">
-                  A Comprehensive Point of Sale System for Seamless
-                  Transactions, Intelligent Inventory Management, and Enhanced
-                  Customer Engagement
-                </p>
               </div>
 
               <form action="#" className="mx-auto mb-0 mt-8 max-w-md space-y-4">
